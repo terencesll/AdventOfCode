@@ -20,8 +20,6 @@ while line:
     rules[ruleName] = createRule(minmaxes)
     line = file.readline().strip()
 
-print(rules)
-
 line = file.readline().strip() #your ticket:
 line = file.readline().strip() #83,53,73,139,127,131,97,113,61,101,107,67,79,137,89,109,103,59,149,71
 myTicket = list(map(int, line.split(",")))
@@ -34,13 +32,9 @@ while line:
     tickets.append(list(map(int, line.split(","))))
     line = file.readline().strip()
 
-#print(tickets)
-
 def isValid(rules, value):
     for rule in rules.values():
-        #print("{} {}".format(rule, value))
         if rule(value):
-            #print("True")
             return True
     return False
 
@@ -57,27 +51,32 @@ for ticket in tickets:
 print(len(tickets))
 print(len(validTickets))
 
-ruleToColIndex = {}
+ruleToColIndices = {}
 
-# Looks like some columns satisfies multiple rules
-# e.g. zone can take 0 or 19
-#for ruleName, rule in reversed(rules.items()):
 for ruleName, rule in rules.items():
-    print(ruleName)
-    print(list(filter(lambda x: x not in ruleToColIndex.values(), range(len(rules)))))
-    for i in filter(lambda x: x not in ruleToColIndex.values(), range(len(rules))):
+    ruleToColIndices[ruleName] = []
+    for i in range(len(rules)):
         wholeColumnValid = True
         for ticket in validTickets:
-            #print("ticket: {}".format(ticket))
-            #print("ticket[{}]: {}".format(i, ticket[i]))
-            #print("{}(ticket[{}]): {}".format(ruleName, i, rule(ticket[i])))
             if not rule(ticket[i]):
                 wholeColumnValid = False
                 break
         if wholeColumnValid:
-            ruleToColIndex[ruleName] = i
-            print(ruleToColIndex)
+            ruleToColIndices[ruleName].append(i)
+
+print(ruleToColIndices)
+
+ruleToColIndex = {}
+
+while ruleToColIndices:
+    for ruleName, colIndices in ruleToColIndices.items():
+        if len(colIndices) == 1:
+            thisIndex = colIndices[0]
+            ruleToColIndex[ruleName] = thisIndex
             break
+    ruleToColIndices.pop(ruleName)
+    for colIndices in ruleToColIndices.values():
+        colIndices.remove(thisIndex)
 
 print(ruleToColIndex)
 
